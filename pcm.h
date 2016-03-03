@@ -10,6 +10,8 @@ class pcm {
 
 public:
     void simplest_pcm161e_split(char* url);
+    void simplest_pcm16le_halfvolumeleft(char*url);
+    void simplest_pcm16le_doublespeed(char* url);
 };
 
 

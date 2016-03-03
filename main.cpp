@@ -1,19 +1,67 @@
-#include "yuv.h"
-#include "pcm.h"
+#include <stdlib.h>
+#include <iostream>
+#include <SDL/SDL.h>
+#include <unistd.h>
+
+using namespace std;
+
+SDL_Surface *screen;
+
+void display_bmp(char* fileName){
+
+    SDL_Surface *image;
+
+    image = SDL_LoadBMP(fileName);
+
+    if(image == NULL){
+        fprintf(stderr,"could not load %s: %s\n",fileName,SDL_GetError());
+        return;
+    }
+
+    if(image->format->palette && screen->format->palette){
+        SDL_SetColors(screen, image->format->palette->colors,0,image->format->palette->ncolors);
+    }
 
 
+    if(SDL_BlitSurface(image,NULL,screen,NULL)<0){
+        fprintf(stderr,"BlitSurface error:%s\n",SDL_GetError());
+    }
+
+    SDL_UpdateRect(screen, 0, 0, image->w, image->h);
+
+    sleep(10);
+
+    SDL_FreeSurface(image);
+
+}
 
 int main() {
-    //yuv myYuv;
 
-    //myYuv.simplest_yuv420_split("/home/justin/ClionProjects/VideoAudioDemo/lena_256x256_yuv420p.yuv",256,256,1);
-    //simple_yuv420_gray("/home/justin/ClionProjects/VideoAudioDemo/lena_256x256_yuv420p.yuv",256,256,"/home/justin/Desktop/yuvtest/output_420gray.yuv");
-    //simple_yuv420_half_bright("/home/justin/ClionProjects/VideoAudioDemo/lena_256x256_yuv420p.yuv",256,256,"/home/justin/Desktop/yuvtest/output_420half_bright.yuv");
-    //simplest_yuv420_border("/home/justin/ClionProjects/VideoAudioDemo/lena_256x256_yuv420p.yuv",256,256,20,"/home/justin/Desktop/yuvtest/output_420_border_bright.yuv");
-    //simplest_yuv420_graybar("/home/justin/Desktop/yuvtest/output_420_graybar_800*200.yuv",800,200,20);
-    //simplest_rgb24_split("/home/justin/ClionProjects/VideoAudioDemo/cie1931_500x500.rgb",500,500);
-    //myYuv.simplest_rgb24_to_bmp("/home/justin/ClionProjects/VideoAudioDemo/lena_256x256_rgb24.rgb",256,256,"/home/justin/Desktop/yuvtest/output_420_border_bright.bmp");
-    pcm myPcmProcess;
-    myPcmProcess.simplest_pcm161e_split("/home/justin/ClionProjects/VideoAudioDemo/resource/NocturneNo2inEflat_44.1k_s16le.pcm");
+    printf("Initializing SDL\n");
+
+    if((SDL_Init(SDL_INIT_VIDEO)==-1))
+    {
+        printf("Could not initialize SDL: %s.\n",SDL_GetError());
+        return 1;
+    }
+
+    screen = SDL_SetVideoMode(512,512,8,SDL_SWSURFACE);
+   // screen = SDL_CreateWindow("My Image Window", SDL_WINDOWPOS_UNDEFINED,SDL_WINDOWPOS_UNDEFINED,640,480,SDL_WINDOW_FULLSCREEN|SDL_WINDOW_OPENGL);
+
+
+
+
+    if(screen == NULL){
+        fprintf(stderr, "Could not set 640x480x8 video mode: %s\n",SDL_GetError());
+        return -1;
+    }
+
+
+    display_bmp("/home/justin/ClionProjects/VideoAudioDemo/resource/lena512.bmp");
+
+    printf("Quiting...\n");
+
+    SDL_Quit();
+
     return 0;
 }
